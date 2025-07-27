@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+ 
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CleanerReview {
+  id         BigInt     @id @default(autoincrement())
+  site_id    BigInt
+  name       String
+  phone      String
+  remarks    String?
+  images     String[]   // Store multiple image URLs or filenames
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  
+  location   Locations  @relation(fields: [site_id], references: [id])
+}
+
+model Locations {
+  id         BigInt         @id @default(autoincrement())
+  name       String
+  address    String?
+  latitude   Float?         
+  longitude  Float?         
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
+
+  // Relations
+  reviews    CleanerReview[]
+}
+
