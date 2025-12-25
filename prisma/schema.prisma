@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
- 
 }
 
 datasource db {
@@ -8,29 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model CleanerReview {
-  id         BigInt     @id @default(autoincrement())
-  site_id    BigInt
-  name       String
-  phone      String
-  remarks    String?
-  images     String[]   // Store multiple image URLs or filenames
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
-  
-  location   Locations  @relation(fields: [site_id], references: [id])
+model user_review_qr {
+  id           BigInt    @id @default(autoincrement())
+  location_id  BigInt?
+  name         String?   @db.VarChar(100)
+  email        String?   @db.VarChar(100)
+  phone        String?   @db.VarChar(20)
+  rating       Float?
+  description  String?
+  reason_ids   Int[]
+  images       String[]
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime? @default(now()) @db.Timestamptz(6)
+  longitude    Float?
+  latitude     Float?
+  token_number String?   @unique @db.VarChar(6)
 }
-
-model Locations {
-  id         BigInt         @id @default(autoincrement())
-  name       String
-  address    String?
-  latitude   Float?         
-  longitude  Float?         
-  created_at DateTime       @default(now())
-  updated_at DateTime       @updatedAt
-
-  // Relations
-  reviews    CleanerReview[]
-}
-
