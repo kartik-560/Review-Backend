@@ -87,6 +87,9 @@ router.post(
 
       const frontendRating = parseFloat(body.rating);
 
+      // ✅ Generate unique 6-digit token during review creation
+      const token = await generateUniqueToken();
+
       const reviewData = {
         rating: frontendRating,
         reason_ids: reasonIds,
@@ -96,6 +99,7 @@ router.post(
         location_id: body.location_id ? BigInt(body.location_id) : null,
         images: imageUrls,
         company_id: body?.companyId,
+        token_number: token, // ✅ Add token to review data
       };
 
       if (body.name) reviewData.name = body.name;
@@ -106,11 +110,13 @@ router.post(
         data: reviewData,
       });
 
-      console.log("Review created:", review);
+      console.log("✅ Review created with token:", review);
+      
       res.status(201).json({
         success: true,
         data: normalizeBigInt(review),
         reviewId: review.id.toString(),
+        tokenNumber: token, // ✅ Return token to frontend
         message: "Review submitted successfully!",
       });
 
@@ -144,27 +150,22 @@ router.patch("/user-review/:id", async (req, res) => {
     if (phone) updateData.phone = phone;
 
     if (Object.keys(updateData).length === 0) {
-      return res.status(400).json({
-        success: false,
+      return res.status(200).json({
+        success: true,
         message: "No data provided to update",
       });
     }
-
-    // ✅ Generate unique 6-digit token
-    const token = await generateUniqueToken();
-    updateData.token_number = token;
 
     const updatedReview = await prisma.user_review_qr.update({
       where: { id: BigInt(id) },
       data: updateData,
     });
 
-    console.log("✅ Review updated with token:", updatedReview);
+    console.log("✅ Review updated:", updatedReview);
 
     res.status(200).json({
       success: true,
       data: normalizeBigInt(updatedReview),
-      tokenNumber: token, // ✅ Return token to frontend
       message: "Contact details updated successfully!",
     });
   } catch (error) {
